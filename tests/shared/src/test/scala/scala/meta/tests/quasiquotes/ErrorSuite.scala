@@ -435,11 +435,7 @@ class ErrorSuite extends FunSuite {
   }
 
   test("q\"package foo {}; package bar {}\"") {
-    println(typecheckError("""
-      import scala.meta._
-      import scala.meta.dialects.Scala211
-      q"package foo {}; package bar {}"
-    """).replace("\r", ""))
+    println("hi")
     assert(typecheckError("""
       import scala.meta._
       import scala.meta.dialects.Scala211
