@@ -318,28 +318,14 @@ object Defn {
                     tparams: List[scala.meta.Type.Param],
                     ctor: Ctor.Primary,
                     inits: List[Init]) extends Defn with Member.Term {
-      //      checkFields(
-      //        parent.isEmpty || {
-      //          val p = parent.get
-      //          p.is[Template] && (p.parent.isEmpty || p.parent.get.is[Defn.Enum])
-      //        }
-      //      )
       checkParent(ParentChecks.CaseEnum)
-
     }
     // example:
     // enum Color {
     //   case Red, Blue, Green
     // }
     @ast class RepeatedCase(mods: List[Mod], cases: List[Enum.Name]) extends Defn {
-      //      checkFields(
-      //        parent.isEmpty || {
-      //          val p = parent.get
-      //          p.is[Template] && (p.parent.isEmpty || p.parent.get.is[Defn.Enum])
-      //        }
-      //      )
       checkParent(ParentChecks.CaseEnum)
-
     }
   }
 }
