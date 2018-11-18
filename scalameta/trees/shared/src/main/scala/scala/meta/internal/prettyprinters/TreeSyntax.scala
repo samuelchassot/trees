@@ -489,6 +489,12 @@ object TreeSyntax {
         case t: Defn.Var       => s(w(t.mods, " "), kw("var"), " ", r(t.pats, ", "), t.decltpe, " ", kw("="), " ", t.rhs.map(s(_)).getOrElse(s(kw("_"))))
         case t: Defn.Type      => s(w(t.mods, " "), kw("type"), " ", t.name, t.tparams, " ", kw("="), " ", t.body)
         case t: Defn.Class     => s(w(t.mods, " "), kw("class"), " ", t.name, t.tparams, w(" ", t.ctor, t.ctor.mods.nonEmpty), templ(t.templ))
+        case t: Defn.Enum     =>
+          if (dialect.allowEnums){
+            s(w(t.mods, " "), kw("enum"), " ", t.name, t.tparams, w(" ", t.ctor, t.ctor.mods.nonEmpty), templ(t.templ))
+          } else {
+            throw new UnsupportedOperationException(s"$dialect doesn't support Enum")
+          }
         case t: Defn.Trait     =>
           if (dialect.allowTraitParameters || t.ctor.mods.isEmpty) {
             s(w(t.mods, " "), kw("trait"), " ", t.name, t.tparams, w(" ", t.ctor, t.ctor.mods.nonEmpty), templ(t.templ))
@@ -593,6 +599,33 @@ object TreeSyntax {
             case (stats, _) => r(stats.map(i(_)), "")
           }
           s("case ", ppat, pcond, " ", kw("=>"), pbody)
+
+        // Enum.Case
+        case t: Defn.Enum.Case =>
+          if (dialect.allowEnums) {
+            if (t.inits.isEmpty)
+              s(kw("case"), " ", t.name, t.tparams, w(" ", t.ctor, t.ctor.mods.nonEmpty))
+            else
+              s(kw("case"), " ", t.name, t.tparams, w(" ", t.ctor, t.ctor.mods.nonEmpty), " ", kw("extends"), " ", r(t.inits, " with "))
+          } else {
+            throw new UnsupportedOperationException(s"$dialect doesn't support Enum")
+          }
+
+        //Enum.RepeatedCase
+        case t: Defn.Enum.RepeatedCase =>
+          if (dialect.allowEnums) {
+            s(kw("case"), " ", r(t.cases, ", "))
+          } else {
+            throw new UnsupportedOperationException(s"$dialect doesn't support Enum")
+          }
+
+        //Enum.Name
+        case t: Defn.Enum.Name =>
+          if (dialect.allowEnums) {
+            s(t.value)
+          } else {
+            throw new UnsupportedOperationException(s"$dialect doesn't support Enum")
+          }
 
         // Source
         case t: Source                   => r(t.stats, EOL)
