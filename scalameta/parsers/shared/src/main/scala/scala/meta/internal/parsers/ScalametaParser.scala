@@ -544,8 +544,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
       token.is[TemplateIntro] || token.is[DclIntro] ||
       (token.is[Unquote] && token.next.is[DefIntro]) ||
       (token.is[Ellipsis] && token.next.is[DefIntro]) ||
-      (token.is[KwCase] && token.isCaseClassOrObject) ||
-      (dialect.allowEnums && token.is[KwCase] && ! token.isCaseClassOrObject) ||
+      (token.is[KwCase] && (token.isCaseClassOrObject || dialect.allowEnums)) ||
       (dialect.allowEnums && token.is[KwEnum])
     }
   }
@@ -1168,6 +1167,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
   private object AllowedName {
     implicit object AllowedTermName extends AllowedName[Term.Name]
     implicit object AllowedTypeName extends AllowedName[Type.Name]
+    implicit object AllowedEnumName extends AllowedName[Defn.Enum.Name]
   }
   private def name[T <: Tree : AllowedName : AstInfo](ctor: String => T, advance: Boolean): T = token match {
     case Ident("inline") if !dialect.allowInlineIdents =>
@@ -1184,6 +1184,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
   }
   def termName(advance: Boolean = true): Term.Name = name(Term.Name(_), advance)
   def typeName(advance: Boolean = true): Type.Name = name(Type.Name(_), advance)
+  def enumName(advance: Boolean = true): Defn.Enum.Name = name(Defn.Enum.Name(_), advance)
 
   def path(thisOK: Boolean = true): Term.Ref = {
     val startsAtBof = token.prev.is[BOF]
@@ -2787,7 +2788,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
         funDefOrDclOrSecondaryCtor(mods)
       case KwType() =>
         typeDefOrDcl(mods)
-      case KwCase() if ahead(dialect.allowEnums && token.isNot[KwClass] && token.isNot[KwObject]) =>
+      case KwCase() if dialect.allowEnums && ahead(token.isNot[KwClass] && token.isNot[KwObject]) =>
         caseDef(mods)
       case _ =>
         tmplDef(mods)
@@ -2902,7 +2903,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     adjustSepRegions(Token.RightArrow(input, dialect, 0, 0))
 
     if (ahead(token.is[Comma])) {
-      val cases = commaSeparated(readCase())
+      val cases = commaSeparated(enumName())
       Defn.Enum.RepeatedCase(mods, cases)
     } else {
       val caseName = termName()
@@ -2916,12 +2917,6 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
       }
       Defn.Enum.Case(mods, caseName, typeParams, ctor, parents)
     }
-  }
-
-  def readCase(): Defn.Enum.Name = {
-    val temp = Defn.Enum.Name(token.text)
-    next()
-    temp
   }
 
   /** Hook for IDE, for top-level classes/objects. */
@@ -2941,7 +2936,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
         classDef(mods :+ atPos(casePos, casePos)(Mod.Case()))
       case KwObject() =>
         objectDef(mods)
-      case KwEnum() if (dialect.allowEnums) =>
+      case KwEnum() if dialect.allowEnums =>
         enumDef(mods)
       case KwCase() if ahead(token.is[KwObject]) =>
         val casePos = in.tokenPos

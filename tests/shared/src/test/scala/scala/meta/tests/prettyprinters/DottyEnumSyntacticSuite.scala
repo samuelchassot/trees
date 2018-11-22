@@ -13,28 +13,26 @@ class DottyEnumSyntacticSuite extends FunSuite {
     test(name) {
       Dotty(source).parse[Source] match {
         case Parsed.Success(t) =>
-          println(t.transform { case tree: Tree => tree.withOrigin(Origin.None) }.syntax)
           assert(t.transform { case tree: Tree => tree.withOrigin(Origin.None) }.syntax == source)
-
         case _ => fail("Cannot parse given source")
       }
     }
   }
 
   testOK(
-    """enum Foo { case A[T](x: Int) extends Foo }"""
+    "enum Foo { case A[T](x: Int) extends Foo }"
   )
 
   testOK(
-    """enum Foo { case A[T](x: Int) extends Foo with A with B }"""
+    "enum Foo { case A[T](x: Int) extends Foo with A with B }"
   )
 
   testOK(
-    """enum Foo { case A }"""
+    "enum Foo { case A }"
   )
 
   testOK(
-    """enum Foo { case A, B, C }"""
+    "enum Foo { case A, B, C }"
   )
 
   testOK(
@@ -54,6 +52,13 @@ class DottyEnumSyntacticSuite extends FunSuite {
   )
 
   testOK(
-    """enum Foo { class Bar }"""
+    """enum Foo {
+      |  case Bar, Bat
+      |  case Baz
+      |}""".stripMargin
+  )
+
+  testOK(
+    "enum Foo { class Bar }"
   )
 }

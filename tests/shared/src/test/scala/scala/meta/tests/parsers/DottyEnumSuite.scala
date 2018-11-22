@@ -46,7 +46,7 @@ class DottyEnumSuite extends FunSuite {
             | Template(
               |Nil,
               | Nil,
-              | Self(Name(""), None), Nil))))""".trim.stripMargin.split('\n').mkString("")
+              | Self(Name(""), None), Nil))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -73,7 +73,7 @@ class DottyEnumSuite extends FunSuite {
               | List(
                 |Defn.Enum.Name("A"),
                 | Defn.Enum.Name("B"),
-                | Defn.Enum.Name("C"))))))))""".trim.stripMargin.split('\n').mkString("")
+                | Defn.Enum.Name("C"))))))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -123,7 +123,7 @@ class DottyEnumSuite extends FunSuite {
                     |Nil,
                     | List(Pat.Var(Term.Name("x"))),
                     | Some(Type.Name("Int")),
-                    | Lit.Int(2)))))))""".trim.stripMargin.split('\n').mkString("")
+                    | Lit.Int(2)))))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -147,9 +147,7 @@ class DottyEnumSuite extends FunSuite {
               | Nil,
               | Self(Name(""), None),
               | List(
-              |Defn.Enum.Case(Nil, Term.Name("A"), Nil, Ctor.Primary(Nil, Name(""), Nil), Nil))))))""".trim.stripMargin
-      .split('\n')
-      .mkString("")
+              |Defn.Enum.Case(Nil, Term.Name("A"), Nil, Ctor.Primary(Nil, Name(""), Nil), Nil))))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -207,9 +205,7 @@ class DottyEnumSuite extends FunSuite {
                     |Init(
                     |Type.Name("Color"),
                     | Name(""),
-                    | List(List(Lit.Int(0x0000FF)))))))))))""".trim.stripMargin
-      .split('\n')
-      .mkString("")
+                    | List(List(Lit.Int(0x0000FF)))))))))))""".stripMargin.replace("\n", "")
   )
 
   checkError("enum {}")
@@ -308,7 +304,7 @@ class DottyEnumSuite extends FunSuite {
                   |Init(Type.Name("A"), Name(""), Nil),
                   | Init(Type.Name("B"), Name(""), Nil),
                   | Init(Type.Name("C"), Name(""), Nil)),
-                | Self(Name(""), None), Nil))))""".trim.stripMargin.split('\n').mkString("")
+                | Self(Name(""), None), Nil))))""".stripMargin.replace("\n", "")
   )
 
   checkError("enum Foo Bar{}")
@@ -345,9 +341,7 @@ class DottyEnumSuite extends FunSuite {
                       |Term.Name("x"),
                       | List(
                         |Case(Lit.Int(1), None, Lit.Int(2)),
-                        | Case(Pat.Wildcard(), None, Term.Block(Nil)))))))))""".trim.stripMargin
-      .split('\n')
-      .mkString("")
+                        | Case(Pat.Wildcard(), None, Term.Block(Nil)))))))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -399,9 +393,7 @@ class DottyEnumSuite extends FunSuite {
                     |Nil,
                     | Term.Name("A"),
                     | Nil,
-                    | Ctor.Primary(Nil, Name(""), Nil), Nil))))))""".trim.stripMargin
-      .split('\n')
-      .mkString("")
+                    | Ctor.Primary(Nil, Name(""), Nil), Nil))))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -464,7 +456,7 @@ class DottyEnumSuite extends FunSuite {
                     |Nil,
                     | Nil,
                     | Self(Name(""), None),
-                    | Nil)))))))""".trim.stripMargin.split('\n').mkString("")
+                    | Nil)))))))""".stripMargin.replace("\n", "")
   )
 
   checkOK(
@@ -476,6 +468,14 @@ class DottyEnumSuite extends FunSuite {
       | }
       |}
       """.stripMargin
+  )
+
+  checkOK(
+    """
+      |enum Foo {
+      | case `Hello world !`
+      |}
+    """.stripMargin
   )
 
   checkOK(
@@ -510,8 +510,6 @@ class DottyEnumSuite extends FunSuite {
                     |Nil,
                     | Term.Name("D"),
                     | Nil,
-                    | Ctor.Primary(Nil, Name(""), Nil), Nil))))))""".trim.stripMargin
-      .split('\n')
-      .mkString("")
+                    | Ctor.Primary(Nil, Name(""), Nil), Nil))))))""".stripMargin.replace("\n", "")
   )
 }
