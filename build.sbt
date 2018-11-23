@@ -1,10 +1,10 @@
 inThisBuild(
   List(
     scalaVersion := "2.12.7",
-    version ~= { dynVer =>
-      if (sys.env.contains("CI")) dynVer
-      else "SNAPSHOT" // only for local publishng
-    },
+    // version ~= { dynVer =>
+    //   if (sys.env.contains("CI")) dynVer
+    //   else "SNAPSHOT" // only for local publishng
+    // },
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/sbt-scalafmt")),

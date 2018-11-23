@@ -468,6 +468,10 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     }
   }
 
+  def onlyAcceptMod(allowed: Mod*)(mods: List[Mod], errorMsg: String): Unit = {
+    mods.filter(!allowed.contains(_)).foreach(m => syntaxError(errorMsg, at = m))
+  }
+
   class InvalidModCombination[M1 <: Mod, M2 <: Mod](m1: M1, m2: M2) {
     def errorMessage: String = Messages.IllegalCombinationModifiers(m1, m2)
   }
@@ -2992,7 +2996,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
 
   def enumDef(mods: List[Mod]): Defn.Enum = atPos(mods, auto) {
     accept[KwEnum]
-    rejectMod[Mod.Override](mods, Messages.InvalidOverrideEnum)
+    onlyAcceptMod(Mod.Protected, Mod.Private, Mod.Annot)(mods, s"enum can only have protected, private or annot as modifier")
     val enumName = typeName()
     rejectModCombination[Mod.Final, Mod.Sealed](mods, s"enum $enumName")
     val typeParams = typeParamClauseOpt(ownerIsType = true, ctxBoundsAllowed = true)

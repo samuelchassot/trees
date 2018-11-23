@@ -288,6 +288,42 @@ class DottyEnumSuite extends FunSuite {
     """.stripMargin
   )
 
+  checkError(
+    "final enum Foo {}"
+  )
+
+  checkError(
+    "lazy enum Foo {}"
+  )
+
+  checkError(
+    "implicit enum Foo {}"
+  )
+
+  checkError(
+    "sealed enum Foo {}"
+  )
+
+  checkError(
+    "override enum Foo {}"
+  )
+
+  checkError(
+    "abstract enum Foo {}"
+  )
+
+  checkError(
+    "final override enum Foo {}"
+  )
+
+  checkOK(
+    "private enum Foo {}"
+  )
+
+  checkOK(
+    "protected enum Foo {}"
+  )
+
   checkOK(
     "enum Foo extends A with B with C {}",
     """
