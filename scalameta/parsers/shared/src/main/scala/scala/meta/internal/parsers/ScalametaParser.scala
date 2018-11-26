@@ -468,8 +468,21 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     }
   }
 
-  def onlyAcceptMod(allowed: Mod*)(mods: List[Mod], errorMsg: String): Unit = {
-    mods.filter(!allowed.contains(_)).foreach(m => syntaxError(errorMsg, at = m))
+  def onlyAcceptMod[M1 <: Mod, M2 <: Mod, M3 <: Mod](mods: List[Mod], errorMsg: String)
+      (implicit classifier1: Classifier[Mod, M1],
+       tag1: ClassTag[M1],
+       classifier2: Classifier[Mod, M2],
+       tag2: ClassTag[M2],
+       classifier3: Classifier[Mod, M3],
+       tag3: ClassTag[M3]) = {
+    mods.filter(m => !((mods.getAll[M1] ++ mods.getAll[M2] ++ mods.getAll[M3]).contains(m)))
+      .foreach(m => syntaxError(errorMsg, at = m))
+  }
+
+  def onlyAcceptMod[M <: Mod](mods: List[Mod], errorMsg: String)
+      (implicit classifier: Classifier[Mod, M],
+      tag: ClassTag[M]) = {
+    mods.filter(m => !((mods.getAll[M]).contains(m))).foreach(m => syntaxError(errorMsg, at = m))
   }
 
   class InvalidModCombination[M1 <: Mod, M2 <: Mod](m1: M1, m2: M2) {
@@ -2906,6 +2919,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     // We need to get it out of that mode by telling it we are past the `=>`
     adjustSepRegions(Token.RightArrow(input, dialect, 0, 0))
 
+    onlyAcceptMod[Mod.Annot](mods, "enum case can only have annotations")
     if (ahead(token.is[Comma])) {
       val cases = commaSeparated(enumName())
       Defn.Enum.RepeatedCase(mods, cases)
@@ -2996,9 +3010,10 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
 
   def enumDef(mods: List[Mod]): Defn.Enum = atPos(mods, auto) {
     accept[KwEnum]
-    onlyAcceptMod(Mod.Protected, Mod.Private, Mod.Annot)(mods, s"enum can only have protected, private or annot as modifier")
     val enumName = typeName()
-    rejectModCombination[Mod.Final, Mod.Sealed](mods, s"enum $enumName")
+    onlyAcceptMod[Mod.Private, Mod.Protected, Mod.Annot](
+      mods,
+      "enum can only have access modifier (private, protected) and annotation")
     val typeParams = typeParamClauseOpt(ownerIsType = true, ctxBoundsAllowed = true)
     val ctor = primaryCtor(OwnedByClass)
     Defn.Enum(mods, enumName, typeParams, ctor, templateOpt(OwnedByEnum))

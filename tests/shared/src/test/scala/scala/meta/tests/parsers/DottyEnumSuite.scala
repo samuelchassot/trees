@@ -324,6 +324,46 @@ class DottyEnumSuite extends FunSuite {
     "protected enum Foo {}"
   )
 
+  checkError(
+    """
+      |enum Foo {
+      | private case A
+      |}
+    """.stripMargin
+  )
+
+  checkError(
+    """
+      |enum Foo {
+      | public case A
+      |}
+    """.stripMargin
+  )
+
+  checkError(
+    """
+      |enum Foo {
+      | override case A
+      |}
+    """.stripMargin
+  )
+
+  checkError(
+    """
+      |enum Foo {
+      | implicit case A
+      |}
+    """.stripMargin
+  )
+
+  checkError(
+    """
+      |enum Foo {
+      | lazy case A
+      |}
+    """.stripMargin
+  )
+
   checkOK(
     "enum Foo extends A with B with C {}",
     """
