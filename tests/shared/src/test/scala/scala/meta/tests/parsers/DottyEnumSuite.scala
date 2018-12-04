@@ -2,12 +2,13 @@ package scala.meta.tests.parsers
 
 import org.scalatest.FunSuite
 import org.scalatest._
+
 import scala.meta._
 import scala.meta.dialects.Dotty
 
 class DottyEnumSuite extends FunSuite {
-  def newParserTest(source: String)(body: Parsed[Source] => Unit) {
-    val name = source.take(50).replace("\n", " ")
+  def newParserTest(source: String, customName: Option[String] = None)(body: Parsed[Source] => Unit) {
+    val name = customName.getOrElse(source.take(50).replace("\n", " "))
     test(name) {
       val parsed = Dotty(source).parse[Source]
       body(parsed)
